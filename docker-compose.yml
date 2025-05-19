@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # React Frontend Service
+  frontend:
+    build:
+      # CHECK THIS: Ensure './my-react-frontend' matches your React app's folder name
+      context: ./kiss-graph-webapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Exposes React app (served by Nginx on port 80 in container) to host port 3000
+    container_name: kiss-graph-webapp-container # Optional: a custom name for the container
+    depends_on:
+      - backend
+    environment:
+      # This tells your React app (when running in the browser) how to reach the API.
+      # 'localhost:5000' because the 'backend' service is mapped to host port 5000.
+      # Ensure your React code uses this environment variable to make API calls.
+      - REACT_APP_API_URL=http://localhost:5000/api
+    networks:
+      - app-network
+
+  # .NET Backend API Service
+  backend:
+    build:
+      # CHECK THIS: Ensure './MyGraphApi' matches your .NET API's folder name
+      context: ./kiss-graph-api
+      dockerfile: Dockerfile
+    ports:
+      # CHECK THIS: Maps host port 5000 to container port 8080.
+      # The Dockerfile for .NET 8+ typically exposes/runs on port 8080.
+      # If your .NET API runs on a different port inside the container (e.g., 80 or 5000 for older versions),
+      # change '8080' to that port (e.g., "5000:80").
+      - "5000:8080"
+    container_name: kiss-graph-api-container # Optional: a custom name
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # The API connects to Neo4j using the service name 'graphdb' on the internal Docker network
+      - NEO4J_URI=bolt://graphdb:7687
+      - NEO4J_USER=neo4j
+      # CHECK THIS: Make sure 'yourStrongPassword' is the SAME as in the 'graphdb' service below
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD_SECRET}
+    depends_on:
+      - graphdb
+    # volumes:
+      # For development, if you want code changes in your .NET API to be reflected without rebuilding the image:
+      # Make sure the source path (left side) is correct relative to your docker-compose.yml
+      # and the target path (right side) is where your app code is in the container (usually /app for .NET).
+      # - ./kiss-graph-api:/app
+      # This can have performance implications on WSL, especially for restoring nugets.
+      # 'docker-compose watch' might be a better alternative if your version supports it.
+    networks:
+      - app-network
+
+  # Graph Database Service (Neo4j)
+  graphdb:
+    image: neo4j:latest # Using the official Neo4j image
+    container_name: kiss-graph-db-container # Optional: a custom name
+    ports:
+      - "7474:7474" # Neo4j Browser (web UI)
+      - "7687:7687" # Bolt port (for database connections from your API)
+    volumes:
+      # These named volumes ensure your Neo4j data and logs persist even if the container is removed and recreated.
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      # If you need an import folder:
+      # - ./my_neo4j_imports:/var/lib/neo4j/import # Create 'my_neo4j_imports' next to docker-compose.yml
+    environment:
+      # CHECK THIS: Set your desired Neo4j password. It MUST match the one used by the 'backend' service.
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD_SECRET}
+    networks:
+      - app-network
+
+volumes:
+  # These define the named volumes used by Neo4j for persistent storage.
+  neo4j_data:
+  neo4j_logs:
+
+networks:
+  app-network:
+    driver: bridge # Creates a custom network for your services to communicate

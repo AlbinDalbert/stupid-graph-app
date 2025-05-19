@@ -1,0 +1,65 @@
+# .env file - IMPORTANT for secrets
+.env
+docker-compose.override.yml # If you use one for local overrides
+
+# Node / React
+node_modules/
+build/
+dist/ # If your React app (or other tools) output to dist
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.npm/
+
+# .NET / C#
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+# Visual Studio code coverage results
+*.coverage
+*.coverage.xml
+# Rider
+.idea/
+
+# Docker
+# Avoid committing built images or data volumes if accidentally placed in project dir
+# (Your named volumes neo4j_data and neo4j_logs are managed by Docker, not in your project dir)
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE - VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Rider specific
+#.idea/**/workspace.xml
+#.idea/**/watcherTasks.xml
+#.idea/**/riderModule.iml
+#.idea/**/shelf/
+
+# User-specific files
+*.lock # If any tools generate user-specific lock files

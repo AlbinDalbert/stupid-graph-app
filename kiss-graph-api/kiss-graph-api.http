@@ -1,0 +1,6 @@
+@kiss_graph_api_HostAddress = http://localhost:5177
+
+GET {{kiss_graph_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
