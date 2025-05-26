@@ -62,4 +62,6 @@ Thumbs.db
 #.idea/**/shelf/
 
 # User-specific files
-*.lock # If any tools generate user-specific lock files
+*.lock # If any tools generate user-specific lock files*.tar
+*.tar
+\n*.tar

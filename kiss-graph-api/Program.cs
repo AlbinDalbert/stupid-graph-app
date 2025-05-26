@@ -1,3 +1,7 @@
+using kiss_graph_api.Repositories.Interfaces;
+using kiss_graph_api.Repositories.Neo4j;
+using kiss_graph_api.Services.Implementations;
+using kiss_graph_api.Services.Interfaces;
 using Neo4j.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +31,12 @@ else
 
 // Register Neo4j IDriver as a singleton
 builder.Services.AddSingleton<IDriver>(GraphDatabase.Driver(neo4jUri, AuthTokens.Basic(neo4jUser, neo4jPassword)));
+
+//add services
+// --- REGISTER YOUR NEW SERVICES AND REPOSITORIES ---
+builder.Services.AddScoped<ICreativeWorkService, CreativeWorkService>();
+//add repos
+builder.Services.AddScoped<ICreativeWorkRepository, Neo4JCreativeWorkRepository>();
 
 var app = builder.Build();
 
