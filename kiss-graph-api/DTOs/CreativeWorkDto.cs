@@ -10,7 +10,7 @@ namespace kiss_graph_api.DTOs
         public DateOnly? ReleaseDate { get; init; }
     }
 
-    public record CreateCreativeWork
+    public record CreateCreativeWorkDto
     {
         public required string Title { get; init; }
         public required CreativeWorkType Type { get; init; }

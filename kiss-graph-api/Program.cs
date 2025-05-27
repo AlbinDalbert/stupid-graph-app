@@ -1,3 +1,4 @@
+using kiss_graph_api.Middleware;
 using kiss_graph_api.Repositories.Interfaces;
 using kiss_graph_api.Repositories.Neo4j;
 using kiss_graph_api.Services.Implementations;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<ICreativeWorkService, CreativeWorkService>();
 builder.Services.AddScoped<ICreativeWorkRepository, Neo4JCreativeWorkRepository>();
 
 var app = builder.Build();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

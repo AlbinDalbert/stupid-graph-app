@@ -8,7 +8,7 @@ namespace kiss_graph_api.Repositories.Interfaces
     {
         Task<IEnumerable<CreativeWorkDto>> GetAllAsync();
         Task<CreativeWorkDto?> GetByUuidAsync(string uuid);
-        Task<CreativeWorkDto> CreateAsync(CreativeWorkDto creativeWork);
-        Task<bool> DeleteAsync(string uuid);
+        Task<CreativeWorkDto> CreateAsync(CreateCreativeWorkDto creativeWork);
+        Task DeleteAsync(string uuid);
     }
 }
