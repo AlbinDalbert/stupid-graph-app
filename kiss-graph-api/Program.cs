@@ -35,9 +35,9 @@ builder.Services.AddSingleton<IDriver>(GraphDatabase.Driver(neo4jUri, AuthTokens
 
 //add services
 // --- REGISTER YOUR NEW SERVICES AND REPOSITORIES ---
-builder.Services.AddScoped<ICreativeWorkService, CreativeWorkService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 //add repos
-builder.Services.AddScoped<ICreativeWorkRepository, Neo4JCreativeWorkRepository>();
+builder.Services.AddScoped<IMovieRepository, Neo4JMovieRepository>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();

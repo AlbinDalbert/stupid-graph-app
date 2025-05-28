@@ -8,6 +8,9 @@ namespace kiss_graph_api.Domain.Enums
         [EnumMember(Value = "movie")]
         Movie,
 
+        [EnumMember(Value = "show")]
+        Show,
+
         [EnumMember(Value = "book")]
         Book,
 

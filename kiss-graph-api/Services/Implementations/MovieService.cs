@@ -1,30 +1,26 @@
 ﻿using kiss_graph_api.DTOs;
 using kiss_graph_api.Services.Interfaces; // Use your Interface namespace
 using kiss_graph_api.Repositories.Interfaces; // Use your Repo Interface namespace
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
 using kiss_graph_api.Exceptions;
 
 namespace kiss_graph_api.Services.Implementations
 {
-    public class CreativeWorkService : ICreativeWorkService
+    public class MovieService : IMovieService
     {
-        private readonly ICreativeWorkRepository _repository;
-        private readonly ILogger<CreativeWorkService> _logger;
+        private readonly IMovieRepository _repository;
+        private readonly ILogger<MovieService> _logger;
 
-        public CreativeWorkService(ICreativeWorkRepository repository, ILogger<CreativeWorkService> logger)
+        public MovieService(IMovieRepository repository, ILogger<MovieService> logger)
         {
             _repository = repository;
             _logger = logger;
         }
-        public async Task<IEnumerable<CreativeWorkDto>> GetAllCreativeWorksAsync()
+        public async Task<IEnumerable<MovieDto>> GetAllCreativeWorksAsync()
         {
             _logger.LogInformation("Service: Getting all Creative Works");
             return await _repository.GetAllAsync();
         }
-        public async Task<CreativeWorkDto> GetCreativeWorkByUuidAsync(string uuid)
+        public async Task<MovieDto> GetCreativeWorkByUuidAsync(string uuid)
         {
             _logger.LogInformation("Service: Creative Works By Uuid");
             var work = await _repository.GetByUuidAsync(uuid);
@@ -37,10 +33,23 @@ namespace kiss_graph_api.Services.Implementations
             return work;
         }
 
-        public async Task<CreativeWorkDto> CreateCreativeWorkAsync(CreateCreativeWorkDto creativeWork)
+        public async Task<MovieDto> CreateCreativeWorkAsync(CreateMovieDto movie)
         {
             _logger.LogInformation("Service: Add Creative Work");
-            return await _repository.CreateAsync(creativeWork);
+            return await _repository.CreateAsync(movie);
+        }
+
+        public async Task<MovieDto> UpdateCreativeWorkAsync(string uuid, UpdateMovieDto movie)
+        {
+            _logger.LogInformation("Service: Update Creative Work");
+            var work = await _repository.UpdateAsync(uuid, movie);
+
+            if (work == null)
+            {
+                throw new NotFoundException($"CreativeWork with UUID '{uuid}' not found.");
+            }
+
+            return work;
         }
 
         public async Task DeleteCreativeWorkAsync(string uuid)

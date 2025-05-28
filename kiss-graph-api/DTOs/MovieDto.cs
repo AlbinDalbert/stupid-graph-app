@@ -1,10 +1,8 @@
 ﻿using kiss_graph_api.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace kiss_graph_api.DTOs
 {
-    // --- output dtos --- //
-    public record CreativeWorkDto
+    public record MovieDto
     {
         public string? Uuid { get; init; }
         public required string Title { get; init; }
@@ -12,20 +10,15 @@ namespace kiss_graph_api.DTOs
         public DateOnly? ReleaseDate { get; init; }
     }
 
-    // --- input dtos --- //
-    public record CreateCreativeWorkDto
+    public record CreateMovieDto
     {
-        [Required(ErrorMessage = "of course it has a name you silly billy ;)")]
         public required string Title { get; init; }
-        [Required(ErrorMessage = "at least say 'other' if you don't know")]
-        public required CreativeWorkType Type { get; init; }
         public DateOnly? ReleaseDate { get; init; }
     }
 
-    public record UpdateCreativeWorkDto
+    public record UpdateMovieDto
     {
         public string? Title { get; init; }
-        public CreativeWorkType? Type { get; init; }
         public DateOnly? ReleaseDate { get; init; }
     }
 }

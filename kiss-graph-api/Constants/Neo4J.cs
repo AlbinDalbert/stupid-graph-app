@@ -9,12 +9,61 @@
         public const string Genre = "Genre";
     }
 
-    public static class NeoPropKeys
+    public static class NeoProp
     {
-        public const string Uuid = "uuid";
-        public const string Title = "title";
-        public const string Type = "type";
-        public const string ReleaseDate = "releaseDate";
-        public const string Name = "name";
+        private const string _Uuid = "uuid";
+        private const string _Title = "title";
+        private const string _Type = "type";
+        private const string _ReleaseDate = "releaseDate";
+
+        public static class Movie
+        {
+            public const string Uuid = _Uuid;
+            public const string Title = _Title;
+            public const string Type = _Type;
+            public const string ReleaseDate = _ReleaseDate;
+
+            public const string ProductionCompany = "productionCompany";
+        }
+
+        public static class Show
+        {
+            public const string Uuid = _Uuid;
+            public const string Title = _Title;
+            public const string Type = _Type;
+            public const string ReleaseDate = _ReleaseDate;
+
+            public const string ProductionCompany = "productionCompany";
+            public const string NumberOfEpisodes = "numberOfEpisodes";
+        }
+
+        public static class Book
+        {
+            public const string Uuid = _Uuid;
+            public const string Title = _Title;
+            public const string Type = _Type;
+            public const string ReleaseDate = _ReleaseDate;
+
+            public const string Isbn = "isbn";
+            public const string Publisher = "publisher";
+        }
+
+        public static class Game
+        {
+            public const string Uuid = _Uuid;
+            public const string Title = _Title;
+            public const string Type = _Type;
+            public const string ReleaseDate = _ReleaseDate;
+
+            public const string Developer = "developer";
+            public const string Publisher = "publisher";
+        }
+
+        public static class Person
+        {
+            public const string Uuid = _Uuid;
+            public const string Name = "name";
+            public const string BornDate = "bornDate";
+        }
     }
 }
