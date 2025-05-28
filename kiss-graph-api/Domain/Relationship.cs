@@ -1,6 +1,6 @@
-using kiss_graph_api.Models.Enums;
+using kiss_graph_api.Domain.Enums;
 
-namespace kiss_graph_api.Models.Relationship
+namespace kiss_graph_api.Domain.Relationship
 {
 
     public record ActedIn

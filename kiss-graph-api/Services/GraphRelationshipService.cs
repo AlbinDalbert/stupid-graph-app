@@ -1,6 +1,6 @@
-using kiss_graph_api.Models.Node;
-using kiss_graph_api.Models.Relationship;
-using kiss_graph_api.Models.Enums;
+using kiss_graph_api.Domain;
+using kiss_graph_api.Domain.Relationship;
+using kiss_graph_api.Domain.Enums;
 using Neo4j.Driver;
 
 namespace kiss_graph_api.Services {

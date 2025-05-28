@@ -1,9 +1,8 @@
 using Neo4j.Driver;
 using kiss_graph_api.DTOs;
 using kiss_graph_api.Repositories.Interfaces;
-using kiss_graph_api.Models.Enums;
+using kiss_graph_api.Domain.Enums;
 using kiss_graph_api.Constants;
-using kiss_graph_api.Constants.kiss_graph_api.Constants;
 
 namespace kiss_graph_api.Repositories.Neo4j
 {
@@ -26,16 +25,19 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 var works = await session.ExecuteReadAsync(async tx =>
                 {
-                    var cursor = await tx.RunAsync(@"
-                        MATCH (c:CreativeWork)
-                        RETURN c.uuid AS uuid, c.title AS title, c.type AS type, c.releaseDate AS releaseDate
-                        ORDER BY c.title
+                    var cursor = await tx.RunAsync($@"
+                        MATCH (c:{NeoLabels.CreativeWork})
+                        RETURN  c.{NeoPropKeys.Uuid} AS {NeoPropKeys.Uuid}, 
+                                c.{NeoPropKeys.Title} AS {NeoPropKeys.Title}, 
+                                c.{NeoPropKeys.Type} AS {NeoPropKeys.Type}, 
+                                c.{NeoPropKeys.ReleaseDate} AS {NeoPropKeys.ReleaseDate}
+                        ORDER BY c.{NeoPropKeys.Title}
                     ");
 
                     return await cursor.ToListAsync(record => MapRecordToCreativeWorkDto(record));
 
                 });
-                _logger.LogInformation("Repository: Mapped {Count} works.", works.Count);
+
                 return works;
             }
             catch (Exception ex)
@@ -53,10 +55,13 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 var creativeWork = await session.ExecuteReadAsync(async tx =>
                 {
-                    var cursor = await tx.RunAsync(@"
-                        MATCH (c:CreativeWork)
-                        WHERE c.uuid = $uuid
-                        RETURN c.uuid AS uuid, c.title AS title, c.type AS type, c.releaseDate AS releaseDate
+                    var cursor = await tx.RunAsync($@"
+                        MATCH (c:{NeoLabels.CreativeWork})
+                        WHERE c.{NeoPropKeys.Uuid} = ${NeoPropKeys.Uuid}
+                        RETURN  c.{NeoPropKeys.Uuid} AS {NeoPropKeys.Uuid}, 
+                                c.{NeoPropKeys.Title} AS {NeoPropKeys.Title}, 
+                                c.{NeoPropKeys.Type} AS {NeoPropKeys.Type}, 
+                                c.{NeoPropKeys.ReleaseDate} AS {NeoPropKeys.ReleaseDate}
                     ", new { uuid });
 
                     var results = await cursor.ToListAsync(record => MapRecordToCreativeWorkDto(record));
@@ -138,8 +143,8 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 await session.ExecuteWriteAsync(async tx =>
                 {
-                    await tx.RunAsync(@"
-                        MATCH (c:CreativeWork {uuid: $uuid})
+                    await tx.RunAsync($@"
+                        MATCH (c:{NeoLabels.CreativeWork} {{{NeoPropKeys.Uuid}: ${NeoPropKeys.Uuid}})
                         DETACH DELETE c
                     ", new { uuid });
                 });
