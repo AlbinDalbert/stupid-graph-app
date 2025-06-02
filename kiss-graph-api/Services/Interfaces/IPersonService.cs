@@ -6,9 +6,11 @@ namespace kiss_graph_api.Services.Interfaces
     {
         // Basic creative node operations
         Task<IEnumerable<PersonDto>> GetAllPersonAsync();
+        Task<IEnumerable<ActedInSummaryDto>> GetAllActedInAsync(string uuid);
         Task<PersonDto> GetPersonByUuidAsync(string uuid);
         Task<PersonDto> CreatePersonAsync(CreatePersonDto personDto);
         Task<PersonDto> UpdatePersonAsync(string uuid, UpdatePersonDto personDto);
+        Task<ActedInSummaryDto> AssignActingAsync(string uuid, string movieUuid, ActedInDto actedIn);
         Task DeletePersonAsync(string uuid);
     }
 }

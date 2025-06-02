@@ -20,7 +20,7 @@ namespace kiss_graph_api.Repositories.Neo4j
 
         public async Task<IEnumerable<MovieDto>> GetAllAsync()
         {
-            _logger.LogInformation("Repository: Getting all Creative Works from Neo4j");
+            _logger.LogInformation("Repository: Getting all Movies from Neo4j");
             await using var session = _driver.AsyncSession();
 
             try
@@ -44,13 +44,13 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all CreativeWorks from Neo4j");
+                _logger.LogError(ex, "Repository: Error getting all Movies from Neo4j");
                 throw;
             }
         }
         public async Task<MovieDto?> GetByUuidAsync(string uuid) 
         {
-            _logger.LogInformation("Repository: Getting Creative Works by uuid from Neo4j");
+            _logger.LogInformation("Repository: Getting Movie by uuid from Neo4j");
             await using var session = _driver.AsyncSession();
 
             try
@@ -72,20 +72,20 @@ namespace kiss_graph_api.Repositories.Neo4j
 
                 if (creativeWork == null)
                 {
-                    _logger.LogWarning($"CreativeWork with ID: {uuid} not found");
+                    _logger.LogWarning($"Movie with ID: {uuid} not found");
                     return null;
                 }
                 return creativeWork;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all CreativeWorks from Neo4j");
+                _logger.LogError(ex, "Repository: Error getting Movie by uuid from Neo4j");
                 throw;
             }
         }
         public async Task<MovieDto> CreateAsync(CreateMovieDto movie) 
         {
-            _logger.LogInformation("Repository: Add Creative Works to Neo4j");
+            _logger.LogInformation("Repository: Add Movie to Neo4j");
             await using var session = _driver.AsyncSession();
 
             LocalDate? neo4jDate = movie.ReleaseDate is not null
@@ -131,13 +131,13 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all CreativeWorks from Neo4j");
+                _logger.LogError(ex, "Repository: Error adding Movie to Neo4j");
                 throw;
             }
         }
         public async Task<MovieDto?> UpdateAsync(string uuid, UpdateMovieDto updateDto)
         {
-            _logger.LogInformation("Repository: Updating CreativeWork {Uuid}", uuid);
+            _logger.LogInformation("Repository: Updating Movie {Uuid}", uuid);
             await using var session = _driver.AsyncSession();
 
             var setClauses = new List<string>();
@@ -201,7 +201,7 @@ namespace kiss_graph_api.Repositories.Neo4j
         }
         public async Task DeleteAsync(string uuid) 
         {
-            _logger.LogInformation("Repository: Delete Creative Works from Neo4j");
+            _logger.LogInformation("Repository: Delete Movie from Neo4j");
             await using var session = _driver.AsyncSession();
 
             try
@@ -216,7 +216,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error Deleting CreativeWorks from Neo4j");
+                _logger.LogError(ex, "Repository: Error Deleting Movie from Neo4j");
                 throw;
             }
         }

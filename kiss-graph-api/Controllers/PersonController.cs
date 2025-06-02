@@ -23,6 +23,14 @@ public class PersonController : ControllerBase
         return Ok(works);
     }
 
+    [HttpGet("acting/{uuid}")]
+    public async Task<IActionResult> GetAllActedIn(string uuid)
+    {
+        _logger.LogInformation("API: Getting all Creative Works");
+        var works = await _personService.GetAllActedInAsync(uuid);
+        return Ok(works);
+    }
+
     [HttpGet("{uuid}")]
     public async Task<IActionResult> GetPersonByUuid(string uuid)
     {
@@ -37,6 +45,14 @@ public class PersonController : ControllerBase
         _logger.LogInformation($"Creating new Creative Work: {person.Name}");
         var work = await _personService.CreatePersonAsync(person);
         return CreatedAtAction(nameof(CreatePerson), work);
+    }
+
+    [HttpPost("{personUuid}/{creativeWorkUuid}")]
+    public async Task<IActionResult> AssignActing(string personUuid, string creativeWorkUuid, [FromBody] ActedInDto actedInDto)
+    {
+        _logger.LogInformation($"Assign acting for person");
+        var work = await _personService.AssignActingAsync(personUuid, creativeWorkUuid, actedInDto);
+        return Ok(work);
     }
 
     [HttpPatch("{uuid}")]

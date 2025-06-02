@@ -7,5 +7,8 @@ namespace kiss_graph_api.Domain.Enums
     {
         [EnumMember(Value = "lead")]
         Lead,
+
+        [EnumMember(Value = "supporting")]
+        Supporting,
     }
 }

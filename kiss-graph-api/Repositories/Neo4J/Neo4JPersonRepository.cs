@@ -43,13 +43,14 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all Person from Neo4j");
+                _logger.LogError(ex, "Repository: Error getting all Persons from Neo4j");
                 throw;
             }
         }
-        public async Task<PersonDto?> GetByUuidAsync(string uuid) 
+
+        public async Task<PersonDto?> GetByUuidAsync(string uuid)
         {
-            _logger.LogInformation("Repository: Getting Creative Works by uuid from Neo4j");
+            _logger.LogInformation("Repository: Getting Person by uuid from Neo4j");
             await using var session = _driver.AsyncSession();
 
             try
@@ -77,13 +78,13 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all Person from Neo4j");
+                _logger.LogError(ex, "Repository: Error getting Person by uuid from Neo4j");
                 throw;
             }
         }
-        public async Task<PersonDto> CreateAsync(CreatePersonDto person) 
+        public async Task<PersonDto> CreateAsync(CreatePersonDto person)
         {
-            _logger.LogInformation("Repository: Add Creative Works to Neo4j");
+            _logger.LogInformation("Repository: Add Person to Neo4j");
             await using var session = _driver.AsyncSession();
 
             LocalDate? neo4jDate = person.BornDate is not null
@@ -126,7 +127,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error getting all Person from Neo4j");
+                _logger.LogError(ex, "Repository: Error adding Person to Neo4j");
                 throw;
             }
         }
@@ -193,9 +194,9 @@ namespace kiss_graph_api.Repositories.Neo4j
                 throw;
             }
         }
-        public async Task DeleteAsync(string uuid) 
+        public async Task DeleteAsync(string uuid)
         {
-            _logger.LogInformation("Repository: Delete Creative Works from Neo4j");
+            _logger.LogInformation("Repository: Delete Person from Neo4j");
             await using var session = _driver.AsyncSession();
 
             try
@@ -210,10 +211,12 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Repository: Error Deleting Person from Neo4j");
+                _logger.LogError(ex, "Repository: Error deleting Person from Neo4j");
                 throw;
             }
         }
+
+
 
         // ----- Helpers ----- //
 
@@ -266,6 +269,60 @@ namespace kiss_graph_api.Repositories.Neo4j
                 Name = name,
                 BornDate = bornDate
             };
+        }
+
+        public async Task<IEnumerable<ActedInSummaryDto>> GetAllActedInAsync(string uuid)
+        {
+            await using var session = _driver.AsyncSession(); // Assuming _driver is your injected IDriver
+            return await session.ExecuteReadAsync(async tx =>
+            {
+                var parameters = new Dictionary<string, object?>
+        {
+            { "personUuidParam", uuid }
+        };
+
+                // Construct the Cypher query using your NeoProp constants
+                var query = $@"
+            MATCH (p:{NeoLabels.Person})-[r:{NeoLabels.ActedIn}]->(cw:{NeoLabels.CreativeWork})
+            WHERE p.{NeoProp.Person.Uuid} = $personUuidParam
+            RETURN 
+                p.{NeoProp.Person.Name} AS personName,
+                p.{NeoProp.Person.Uuid} AS personUuidString, // Use personUuid from input or return from DB
+                cw.{NeoProp.CreativeWork.Title} AS creativeWorkTitle,
+                cw.{NeoProp.CreativeWork.Uuid} AS creativeWorkUuidString,
+                cw.{NeoProp.CreativeWork.Type} AS creativeWorkType,
+                r.{NeoProp.ActedIn.RoleType} AS roleString // Get the role as a string
+            ORDER BY cw.{NeoProp.CreativeWork.ReleaseDate} DESC, creativeWorkTitle";
+
+                var cursor = await tx.RunAsync(query, parameters);
+
+                return await cursor.ToListAsync(record =>
+                {
+                    ActingRoleType? role = null;
+                    var roleStringFromDb = record["roleString"]?.As<string>();
+                    if (!string.IsNullOrEmpty(roleStringFromDb))
+                    {
+                        if (Enum.TryParse<ActingRoleType>(roleStringFromDb, true, out var parsedRole))
+                        {
+                            role = parsedRole;
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Could not parse role string '{roleStringFromDb}' to ActingRoleType.");
+                        }
+                    }
+
+                    return new ActedInSummaryDto
+                    {
+                        Role = role,
+                        PersonName = record["personName"].As<string>(),
+                        PersonUuid = record["personUuidString"].As<string>(), // Or just use the input personUuid
+                        CreativeWorkTitle = record["creativeWorkTitle"].As<string>(),
+                        CreativeWorkUuid = record["creativeWorkUuidString"].As<string>(),
+                        CreativeWorkType = record["creativeWorkType"].As<string>()
+                    };
+                });
+            });
         }
     }
 }
