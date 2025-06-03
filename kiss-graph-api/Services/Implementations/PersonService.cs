@@ -1,6 +1,6 @@
 ﻿using kiss_graph_api.DTOs;
-using kiss_graph_api.Services.Interfaces; // Use your Interface namespace
-using kiss_graph_api.Repositories.Interfaces; // Use your Repo Interface namespace
+using kiss_graph_api.Services.Interfaces;
+using kiss_graph_api.Repositories.Interfaces;
 using kiss_graph_api.Exceptions;
 using System;
 

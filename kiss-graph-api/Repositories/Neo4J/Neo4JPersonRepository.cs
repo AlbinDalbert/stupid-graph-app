@@ -217,60 +217,6 @@ namespace kiss_graph_api.Repositories.Neo4j
         }
 
 
-
-        // ----- Helpers ----- //
-
-        private PersonDto MapRecordToPersonDto(IRecord record)
-        {
-
-            var uuid = record[NeoProp.Person.Uuid].As<string>();
-            var name = record[NeoProp.Person.Name].As<string>();
-
-            DateOnly? bornDate = null;
-
-            _logger.LogDebug("Mapping record. Keys available: {Keys}", string.Join(", ", record.Keys)); // Log all keys
-
-            if (record.Keys.Contains(NeoProp.Person.BornDate))
-            {
-                var bornDateObject = record[NeoProp.Person.BornDate];
-
-                _logger.LogInformation("Found 'releaseDate' key. Value: [{Value}], Type: [{Type}]",
-                    bornDateObject?.ToString() ?? "NULL",
-                    bornDateObject?.GetType().FullName ?? "NULL");
-
-                if (bornDateObject != null)
-                {
-                    try
-                    {
-                        bornDate = bornDateObject.As<LocalDate>().ToDateOnly();
-                        _logger.LogInformation("Successfully parsed BornDate to: {ParsedDate}", bornDate);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "*** FAILED to parse BornDate. Original Value: {Value}, Type: {Type} ***",
-                            bornDateObject,
-                            bornDateObject.GetType().FullName);
-                        bornDate = null;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("'releaseDate' key found, but its value is NULL.");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("'releaseDate' key NOT found in record!");
-            }
-
-            return new PersonDto
-            {
-                Uuid = uuid,
-                Name = name,
-                BornDate = bornDate
-            };
-        }
-
         public async Task<IEnumerable<ActedInSummaryDto>> GetAllActedInAsync(string uuid)
         {
             await using var session = _driver.AsyncSession(); // Assuming _driver is your injected IDriver
@@ -323,6 +269,58 @@ namespace kiss_graph_api.Repositories.Neo4j
                     };
                 });
             });
+        }
+        // ----- Helpers ----- //
+
+        private PersonDto MapRecordToPersonDto(IRecord record)
+        {
+
+            var uuid = record[NeoProp.Person.Uuid].As<string>();
+            var name = record[NeoProp.Person.Name].As<string>();
+
+            DateOnly? bornDate = null;
+
+            _logger.LogDebug("Mapping record. Keys available: {Keys}", string.Join(", ", record.Keys)); // Log all keys
+
+            if (record.Keys.Contains(NeoProp.Person.BornDate))
+            {
+                var bornDateObject = record[NeoProp.Person.BornDate];
+
+                _logger.LogInformation("Found 'BornDate' key. Value: [{Value}], Type: [{Type}]",
+                    bornDateObject?.ToString() ?? "NULL",
+                    bornDateObject?.GetType().FullName ?? "NULL");
+
+                if (bornDateObject != null)
+                {
+                    try
+                    {
+                        bornDate = bornDateObject.As<LocalDate>().ToDateOnly();
+                        _logger.LogInformation("Successfully parsed BornDate to: {ParsedDate}", bornDate);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "*** FAILED to parse BornDate. Original Value: {Value}, Type: {Type} ***",
+                            bornDateObject,
+                            bornDateObject.GetType().FullName);
+                        bornDate = null;
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("'releaseDate' key found, but its value is NULL.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("'releaseDate' key NOT found in record!");
+            }
+
+            return new PersonDto
+            {
+                Uuid = uuid,
+                Name = name,
+                BornDate = bornDate
+            };
         }
     }
 }

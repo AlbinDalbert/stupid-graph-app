@@ -74,6 +74,14 @@
             public const string Uuid = _Uuid;
             public const string Name = "name";
             public const string BornDate = "bornDate";
+            public const string Gender = "gender";
+        }
+
+        public static class Character
+        {
+            public const string Uuid = _Uuid;
+            public const string Name = "name";
+            public const string Gender = "gender";
         }
 
         public static class ActedIn

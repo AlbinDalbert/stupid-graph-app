@@ -2,25 +2,22 @@
 
 namespace kiss_graph_api.DTOs
 {
-    public record PersonDto
+    public record CharacterDto
     {
         public string? Uuid { get; init; }
         public required string Name { get; init; }
-        public DateOnly? BornDate { get; init; }
         public Gender? Gender { get; init; }
     }
 
-    public record CreatePersonDto
+    public record CreateCharacterDto
     {
         public required string Name { get; init; }
-        public DateOnly? BornDate { get; init; }
         public Gender? Gender { get; init; }
     }
 
-    public record UpdatePersonDto
+    public record UpdateCharacterDto
     {
         public string? Name { get; init; }
-        public DateOnly? BornDate { get; init; }
         public Gender? Gender { get; init; }
     }
 }
