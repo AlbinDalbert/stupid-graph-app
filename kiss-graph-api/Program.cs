@@ -38,11 +38,15 @@ builder.Services.AddSingleton<IDriver>(GraphDatabase.Driver(neo4jUri, AuthTokens
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IGenreService, GenreService>();
 //add repos
 builder.Services.AddScoped<IMovieRepository, Neo4JMovieRepository>();
 builder.Services.AddScoped<IPersonRepository, Neo4JPersonRepository>();
 builder.Services.AddScoped<ICharacterRepository, Neo4JCharacterRepository>();
 builder.Services.AddScoped<IActedInRepository, Neo4JActedInRepository>();
+builder.Services.AddScoped<IPortrayedRepository, Neo4JPortrayedRepository>();
+builder.Services.AddScoped<IAppearsInRepository, Neo4JAppearsInRepository>();
+builder.Services.AddScoped<IGenreRepository, Neo4JGenreRepository>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();

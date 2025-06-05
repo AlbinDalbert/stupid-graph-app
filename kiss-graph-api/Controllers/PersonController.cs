@@ -47,12 +47,36 @@ public class PersonController : ControllerBase
         return CreatedAtAction(nameof(CreatePerson), work);
     }
 
-    [HttpPost("{personUuid}/{creativeWorkUuid}")]
+    [HttpPost("{personUuid}/ActedIn/{creativeWorkUuid}")]
     public async Task<IActionResult> AssignActing(string personUuid, string creativeWorkUuid, [FromBody] ActedInDto actedInDto)
     {
         _logger.LogInformation($"Assign acting for person");
         var work = await _personService.AssignActingAsync(personUuid, creativeWorkUuid, actedInDto);
         return Ok(work);
+    }
+
+    [HttpDelete("{personUuid}/ActedIn/{creativeWorkUuid}")]
+    public async Task<IActionResult> DeleteAssignedActing(string personUuid, string creativeWorkUuid)
+    {
+        _logger.LogInformation($"Delete assigned acting for person");
+        await _personService.DeleteAssignedActingAsync(personUuid, creativeWorkUuid);
+        return NoContent();
+    }
+
+    [HttpPost("{personUuid}/Portrayed/{characterUuid}")]
+    public async Task<IActionResult> Portrayed(string personUuid, string characterUuid, [FromBody] PortrayedDto portrayedDto)
+    {
+        _logger.LogInformation($"Assign character portrayed for person");
+        var work = await _personService.PortrayedAsync(personUuid, characterUuid, portrayedDto);
+        return Ok(work);
+    }
+
+    [HttpDelete("{personUuid}/Portrayed/{characterUuid}")]
+    public async Task<IActionResult> DeletePortrayed(string personUuid, string characterUuid)
+    {
+        _logger.LogInformation($"Delete character portrayed for person");
+        await _personService.DeletePortrayedAsync(personUuid, characterUuid);
+        return NoContent();
     }
 
     [HttpPatch("{uuid}")]

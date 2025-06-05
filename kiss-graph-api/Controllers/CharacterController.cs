@@ -1,4 +1,5 @@
 using kiss_graph_api.DTOs;
+using kiss_graph_api.Services.Implementations;
 using kiss_graph_api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,8 @@ public class CharacterController : ControllerBase
         return CreatedAtAction(nameof(CreateCharacter), work);
     }
 
+
+
     //[HttpPatch("{uuid}")]
     //public async Task<IActionResult> UpdateCharacter(string uuid,[FromBody] UpdateCharacterDto character)
     //{
@@ -52,6 +55,22 @@ public class CharacterController : ControllerBase
     {
         _logger.LogInformation($"Deleting Character: {uuid}");
         await _characterService.DeletePersonAsync(uuid);
+        return NoContent();
+    }
+
+    [HttpPost("{characterUuid}/AppearsIn/{creativeWorkUuid}")]
+    public async Task<IActionResult> AssignActing(string characterUuid, string creativeWorkUuid, [FromBody] AppearsInDto dto)
+    {
+        _logger.LogInformation($"Character appears in");
+        var work = await _characterService.AppearsInAsync(characterUuid, creativeWorkUuid, dto);
+        return Ok(work);
+    }
+
+    [HttpDelete("{characterUuid}/AppearsIn/{creativeWorkUuid}")]
+    public async Task<IActionResult> DeleteAssignedActing(string personUuid, string creativeWorkUuid)
+    {
+        _logger.LogInformation($"Delete character appears in");
+        await _characterService.DeleteAppearsInAsync(personUuid, creativeWorkUuid);
         return NoContent();
     }
 }

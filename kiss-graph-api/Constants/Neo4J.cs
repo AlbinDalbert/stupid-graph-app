@@ -8,6 +8,8 @@
         public const string Franchise = "Franchise";
         public const string Genre = "Genre";
         public const string ActedIn = "ACTED_IN";
+        public const string Portrayed = "PORTRAYED";
+        public const string AppearsIn = "APPEARS_IN";
     }
 
     public static class NeoProp
@@ -84,9 +86,20 @@
             public const string Gender = "gender";
         }
 
+        public static class Genre
+        {
+            public const string Uuid = _Uuid;
+            public const string Name = "name";
+        }
+
         public static class ActedIn
         {
             public const string RoleType = "roleType";
+        }
+
+        public static class AppearsIn
+        {
+            public const string CharacterType = "CharacterType";
         }
     }
 

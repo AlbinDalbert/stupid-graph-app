@@ -85,12 +85,12 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 var parameters = new Dictionary<string, object?>
                 {
-                    { NeoProp.Person.Uuid, personUuid} ,
-                    { NeoProp.Movie.Uuid, movieUuid}
+                    { "p"+NeoProp.Person.Uuid, personUuid} ,
+                    { "cw"+NeoProp.Movie.Uuid, movieUuid}
                 };
 
                 var query = $@"
-                    MATCH (p:{NeoLabels.Person} {{uuid: ${NeoProp.Person.Uuid}}})-[r:{NeoLabels.ActedIn}]->(cw:{NeoLabels.CreativeWork} {{uuid: ${NeoProp.Movie.Uuid}}})
+                    MATCH (p:{NeoLabels.Person} {{uuid: $p{NeoProp.Person.Uuid}}})-[r:{NeoLabels.ActedIn}]->(cw:{NeoLabels.CreativeWork} {{uuid: $cw{NeoProp.Movie.Uuid}}})
                     DELETE r";
                 await tx.RunAsync(query, parameters);
             });

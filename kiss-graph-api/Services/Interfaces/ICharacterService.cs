@@ -10,5 +10,7 @@ namespace kiss_graph_api.Services.Interfaces
         Task<CharacterDto> CreateCharacterAsync(CreateCharacterDto characterDto);
         Task<CharacterDto> UpdateCharacterAsync(string uuid, UpdateCharacterDto characterDto);
         Task DeletePersonAsync(string uuid);
+        Task<AppearsInSummaryDto> AppearsInAsync(string uuid, string creativeWorkUuid, AppearsInDto appearsInDto);
+        Task DeleteAppearsInAsync (string uuid, string creativeWorkUuid);
     }
 }

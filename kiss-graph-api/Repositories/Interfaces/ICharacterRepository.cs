@@ -7,7 +7,7 @@ namespace kiss_graph_api.Repositories.Interfaces
         Task<IEnumerable<CharacterDto>> GetAllAsync();
         Task<CharacterDto?> GetByUuidAsync(string uuid);
         Task<CharacterDto> CreateAsync(CreateCharacterDto characterDto);
-        Task<CharacterDto> UpdateAsync(string uuid, UpdateCharacterDto characterDto);
+        Task<CharacterDto?> UpdateAsync(string uuid, UpdateCharacterDto characterDto);
         Task DeleteAsync(string uuid);
     }
 }

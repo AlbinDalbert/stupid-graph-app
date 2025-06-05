@@ -8,17 +8,33 @@ namespace kiss_graph_api.Services.Implementations
     {
 
         private readonly ICharacterRepository _repository;
+        private readonly IAppearsInRepository _appearsRepository;
         private readonly ILogger<CharacterService> _logger;
 
-        public CharacterService(ICharacterRepository repository, ILogger<CharacterService> logger)
+        public CharacterService(ICharacterRepository repository, IAppearsInRepository appearsInRepository, ILogger<CharacterService> logger)
         {
             _repository = repository;
+            _appearsRepository = appearsInRepository;
             _logger = logger;
         }
+
+        public async Task<AppearsInSummaryDto> AppearsInAsync(string uuid, string creativeWorkUuid, AppearsInDto appearsInDto)
+        {
+            _logger.LogInformation($"Service: Character appears in");
+            return await _appearsRepository.CreateLink(uuid, creativeWorkUuid, appearsInDto);
+            throw new NotImplementedException();
+        }
+
         public async Task<CharacterDto> CreateCharacterAsync(CreateCharacterDto characterDto)
         {
             _logger.LogInformation($"Service: Create Character: {characterDto.Name}");
             return await _repository.CreateAsync(characterDto);
+        }
+
+        public async Task DeleteAppearsInAsync(string uuid, string creativeWorkUuid)
+        {
+            _logger.LogInformation($"Service: delete Character appears in");
+            await _appearsRepository.DeleteLink(uuid, creativeWorkUuid);
         }
 
         public async Task DeletePersonAsync(string uuid)

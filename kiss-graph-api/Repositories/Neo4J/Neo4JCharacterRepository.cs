@@ -147,9 +147,66 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
         }
 
-        public Task<CharacterDto> UpdateAsync(string uuid, UpdateCharacterDto characterDto)
+        public async Task<CharacterDto?> UpdateAsync(string uuid, UpdateCharacterDto characterDto)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("Repository: Updating Movie {Uuid}", uuid);
+            await using var session = _driver.AsyncSession();
+
+            var setClauses = new List<string>();
+            var parameters = new Dictionary<string, object?>
+            {
+                { NeoProp.Character.Uuid, uuid }
+            };
+
+            if (characterDto.Name != null)
+            {
+                setClauses.Add($"c.{NeoProp.Character.Name} = ${NeoProp.Character.Name}");
+                parameters.Add(NeoProp.Character.Name, characterDto.Name);
+            }
+
+            if (characterDto.Gender != null)
+            {
+                setClauses.Add($"c.{NeoProp.Character.Gender} = ${NeoProp.Character.Gender}");
+                parameters.Add(NeoProp.Character.Gender, characterDto.Gender);
+            }
+
+            if (!setClauses.Any())
+            {
+                _logger.LogInformation("Repository: No properties provided to update for Character {Uuid}. Fetching current.", uuid);
+                return await GetByUuidAsync(uuid);
+            }
+
+            var queryBuilder = new StringBuilder();
+            queryBuilder.Append($"MATCH (c:{NeoLabels.Character} {{{NeoProp.Character.Uuid}: ${NeoProp.Character.Uuid}}}) ");
+            queryBuilder.Append("SET ");
+            queryBuilder.Append(string.Join(", ", setClauses));
+            queryBuilder.Append($@"
+                RETURN c.{NeoProp.Character.Uuid} AS {NeoProp.Character.Uuid},
+                        c.{NeoProp.Character.Name} AS {NeoProp.Character.Name},
+                        c.{NeoProp.Character.Gender} AS {NeoProp.Character.Gender}
+            ");
+
+            try
+            {
+                var updateCharacter = await session.ExecuteWriteAsync(async tx =>
+                {
+                    var cursor = await tx.RunAsync(queryBuilder.ToString(), parameters);
+                    var record = await cursor.SingleAsync();
+                    return MapRecordToCharacterDto(record);
+                });
+                return updateCharacter;
+            }
+            catch (InvalidOperationException ex) when (ex.Message.ToLowerInvariant().Contains("sequence contains no elements"))
+            {
+                _logger.LogWarning(ex, "Repository: CreativeWork {Uuid} not found for update.", uuid);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Repository: Error updating CreativeWork {Uuid}", uuid);
+                throw;
+            }
+
         }
 
         // --- HELPERS --- //

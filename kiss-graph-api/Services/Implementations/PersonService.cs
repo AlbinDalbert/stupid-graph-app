@@ -3,6 +3,7 @@ using kiss_graph_api.Services.Interfaces;
 using kiss_graph_api.Repositories.Interfaces;
 using kiss_graph_api.Exceptions;
 using System;
+using kiss_graph_api.Domain.Relationship;
 
 namespace kiss_graph_api.Services.Implementations
 {
@@ -10,12 +11,14 @@ namespace kiss_graph_api.Services.Implementations
     {
         private readonly IPersonRepository _repository;
         private readonly IActedInRepository _actedInRepository;
+        private readonly IPortrayedRepository _portrayedRepository;
         private readonly ILogger<PersonService> _logger;
 
-        public PersonService(IPersonRepository repository, IActedInRepository actedInRepository, ILogger<PersonService> logger)
+        public PersonService(IPersonRepository repository, IActedInRepository actedInRepository, IPortrayedRepository portrayedRepository, ILogger<PersonService> logger)
         {
             _repository = repository;
             _actedInRepository = actedInRepository;
+            _portrayedRepository = portrayedRepository;
             _logger = logger;
         }
         public async Task<IEnumerable<PersonDto>> GetAllPersonAsync()
@@ -71,6 +74,24 @@ namespace kiss_graph_api.Services.Implementations
         {
             _logger.LogInformation($"Service: get all acting in acting {uuid}");
             return await _repository.GetAllActedInAsync(uuid);
+        }
+
+        public async Task DeleteAssignedActingAsync(string uuid, string movieUuid)
+        {
+            _logger.LogInformation($"Service: Delete assigned acting in acting {uuid} in {movieUuid}");
+            await _actedInRepository.DeleteLink(uuid, movieUuid);
+        }
+
+        public async Task<PortrayedSummaryDto> PortrayedAsync(string uuid, string characterUuid, PortrayedDto portrayed)
+        {
+            _logger.LogInformation($"Service: Delete assigned acting in acting {uuid} in {characterUuid}");
+            return await _portrayedRepository.CreateLink(uuid, characterUuid, portrayed);
+        }
+
+        public async Task DeletePortrayedAsync(string uuid, string characterUuid)
+        {
+            _logger.LogInformation($"Service: Delete assigned acting in acting {uuid} in {characterUuid}");
+            await _portrayedRepository.DeleteLink(uuid, characterUuid);
         }
     }
 }
