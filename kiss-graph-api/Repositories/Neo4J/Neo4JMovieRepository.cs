@@ -28,12 +28,15 @@ namespace kiss_graph_api.Repositories.Neo4j
                 var works = await session.ExecuteReadAsync(async tx =>
                 {
                     var cursor = await tx.RunAsync($@"
-                        MATCH (c:{NeoLabels.CreativeWork})
-                        RETURN  c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
-                                c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
-                                c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
-                                c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
-                        ORDER BY c.{NeoProp.Movie.Title}
+                        MATCH (cw:{NeoLabels.CreativeWork})
+                        OPTIONAL MATCH (cw)-[:{NeoLabels.InGenre}]->(g:{NeoLabels.Genre})
+                        WITH cw, COLLECT(g.{NeoProp.Genre.Name}) AS genres
+                        RETURN  cw.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
+                                cw.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                                cw.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
+                                cw.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate},
+                                genres
+                        ORDER BY cw.{NeoProp.Movie.Title}
                     ");
 
                     return await cursor.ToListAsync(record => MapRecordToCreativeWorkDto(record));
@@ -272,7 +275,8 @@ namespace kiss_graph_api.Repositories.Neo4j
                 Uuid = uuid,
                 Title = title,
                 Type = workType,
-                ReleaseDate = releaseDate
+                ReleaseDate = releaseDate,
+                Genres = record["genres"].As<List<string>>()
             };
         }
         private CreativeWorkType ParseCreativeWorkType(object typeObject)

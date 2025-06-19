@@ -9,12 +9,14 @@ namespace kiss_graph_api.Services.Implementations
 
         private readonly ICharacterRepository _repository;
         private readonly IAppearsInRepository _appearsRepository;
+        private readonly ICInFranchiseRepository _inFranchiseRepository;
         private readonly ILogger<CharacterService> _logger;
 
-        public CharacterService(ICharacterRepository repository, IAppearsInRepository appearsInRepository, ILogger<CharacterService> logger)
+        public CharacterService(ICharacterRepository repository, IAppearsInRepository appearsInRepository, ICInFranchiseRepository cInFranchiseRepository, ILogger<CharacterService> logger)
         {
             _repository = repository;
             _appearsRepository = appearsInRepository;
+            _inFranchiseRepository = cInFranchiseRepository;
             _logger = logger;
         }
 
@@ -22,7 +24,12 @@ namespace kiss_graph_api.Services.Implementations
         {
             _logger.LogInformation($"Service: Character appears in");
             return await _appearsRepository.CreateLink(uuid, creativeWorkUuid, appearsInDto);
-            throw new NotImplementedException();
+        }
+
+        public async Task AssignToFranchise(string characterUuid, string franchiseUuid)
+        {
+            _logger.LogInformation($"Service: Assign Character to Franchise");
+            await _inFranchiseRepository.CreateLink(characterUuid, franchiseUuid);
         }
 
         public async Task<CharacterDto> CreateCharacterAsync(CreateCharacterDto characterDto)
@@ -53,6 +60,12 @@ namespace kiss_graph_api.Services.Implementations
         {
             _logger.LogInformation("Service: Get character by uuid");
             return await _repository.GetByUuidAsync(uuid);
+        }
+
+        public async Task DeleteFromFranchise(string characterUuid, string franchiseUuid)
+        {
+            _logger.LogInformation($"Service: Delete Character from Franchise");
+            await _inFranchiseRepository.DeleteLink(characterUuid, franchiseUuid);
         }
 
         public async Task<CharacterDto> UpdateCharacterAsync(string uuid, UpdateCharacterDto characterDto)

@@ -67,10 +67,26 @@ public class CharacterController : ControllerBase
     }
 
     [HttpDelete("{characterUuid}/AppearsIn/{creativeWorkUuid}")]
-    public async Task<IActionResult> DeleteAssignedActing(string personUuid, string creativeWorkUuid)
+    public async Task<IActionResult> DeleteAssignedActing(string characterUuid, string creativeWorkUuid)
     {
         _logger.LogInformation($"Delete character appears in");
-        await _characterService.DeleteAppearsInAsync(personUuid, creativeWorkUuid);
+        await _characterService.DeleteAppearsInAsync(characterUuid, creativeWorkUuid);
+        return NoContent();
+    }
+
+    [HttpPost("{characterUuid}/InFranchise/{franchiseUuid}")]
+    public async Task<IActionResult> AssignToFranchise(string characterUuid, string franchiseUuid)
+    {
+        _logger.LogInformation($"Assign character to Franchise");
+        await _characterService.AssignToFranchise(characterUuid, franchiseUuid);
+        return NoContent();
+    }
+
+    [HttpDelete("{characterUuid}/InFranchise/{franchiseUuid}")]
+    public async Task<IActionResult> DeleteFromFranchise(string characterUuid, string creativeWorkUuid)
+    {
+        _logger.LogInformation($"Delete character from franchise");
+        await _characterService.DeleteFromFranchise(characterUuid, creativeWorkUuid);
         return NoContent();
     }
 }

@@ -38,7 +38,7 @@ namespace kiss_graph_api.Repositories.Neo4j
                 var query = $@"
                     MATCH (c:{NeoLabels.Character}), (cw:{NeoLabels.CreativeWork})
                     WHERE c.{NeoProp.Character.Uuid} = $cUuid AND cw.{NeoProp.CreativeWork.Uuid} = $cwUuid
-                    MERGE (c)-[r:{NeoLabels.ActedIn}]->(cw)
+                    MERGE (c)-[r:{NeoLabels.AppearsIn}]->(cw)
                     ON CREATE SET r.{NeoProp.AppearsIn.CharacterType} = $typeValue
                     ON MATCH SET r.{NeoProp.AppearsIn.CharacterType} = $typeValue
                     RETURN c.{NeoProp.Character.Name} AS CharacterName, 

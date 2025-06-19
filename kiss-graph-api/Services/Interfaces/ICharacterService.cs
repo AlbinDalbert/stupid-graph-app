@@ -12,5 +12,7 @@ namespace kiss_graph_api.Services.Interfaces
         Task DeletePersonAsync(string uuid);
         Task<AppearsInSummaryDto> AppearsInAsync(string uuid, string creativeWorkUuid, AppearsInDto appearsInDto);
         Task DeleteAppearsInAsync (string uuid, string creativeWorkUuid);
+        Task AssignToFranchise(string characterUuid, string franchiseUuid);
+        Task DeleteFromFranchise(string characterUuid, string franchiseUuid);
     }
 }

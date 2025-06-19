@@ -112,6 +112,40 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
         }
 
+        public async Task<IEnumerable<CharacterDto>> GetAllFromCreativeWorkAsync(string creativeWorkUuid)
+        {
+            _logger.LogInformation("Repository: Getting all Characters from creativeWork");
+            await using var session = _driver.AsyncSession();
+
+            try
+            {
+                var works = await session.ExecuteReadAsync(async tx =>
+                {
+                    var query = $@"
+                        MATCH (c:{NeoLabels.Character})-[:{NeoLabels.AppearsIn}]->(cw:{NeoLabels.CreativeWork} {{{NeoProp.CreativeWork.Uuid}: $creativeWorkUuid}})
+                        RETURN  c.{NeoProp.Character.Uuid} AS {NeoProp.Character.Uuid}, 
+                                c.{NeoProp.Character.Name} AS {NeoProp.Character.Name},
+                                c.{NeoProp.Character.Gender} AS {NeoProp.Character.Gender}
+                        ORDER BY c.{NeoProp.Character.Name}
+                    ";
+
+                    var parameters = new { creativeWorkUuid };
+
+                    var cursor = await tx.RunAsync(query, parameters);
+
+                    return await cursor.ToListAsync(record => MapRecordToCharacterDto(record));
+
+                });
+
+                return works;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Repository: Error getting all Characters from Neo4j");
+                throw;
+            }
+        }
+
         public async Task<CharacterDto?> GetByUuidAsync(string uuid)
         {
             _logger.LogInformation("Repository: Getting Character by uuid from Neo4j");

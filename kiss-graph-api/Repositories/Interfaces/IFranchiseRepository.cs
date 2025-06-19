@@ -8,7 +8,7 @@ namespace kiss_graph_api.Repositories.Interfaces
     {
         Task<IEnumerable<FranchiseDto>> GetAllAsync();
         Task<FranchiseDto?> GetByUuidAsync(string uuid);
-        Task<FranchiseDto> CreateAsync(CreateFranchiseDto movie);
+        Task<FranchiseDto> CreateAsync(CreateFranchiseDto franchise);
         Task<FranchiseDto?> UpdateAsync(string uuid, UpdateFranchiseDto movie);
         Task DeleteAsync(string uuid);
     }

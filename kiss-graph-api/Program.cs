@@ -39,6 +39,7 @@ builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IFranchiseService, FranchiseService>();
 //add repos
 builder.Services.AddScoped<IMovieRepository, Neo4JMovieRepository>();
 builder.Services.AddScoped<IPersonRepository, Neo4JPersonRepository>();
@@ -47,6 +48,10 @@ builder.Services.AddScoped<IActedInRepository, Neo4JActedInRepository>();
 builder.Services.AddScoped<IPortrayedRepository, Neo4JPortrayedRepository>();
 builder.Services.AddScoped<IAppearsInRepository, Neo4JAppearsInRepository>();
 builder.Services.AddScoped<IGenreRepository, Neo4JGenreRepository>();
+builder.Services.AddScoped<IFranchiseRepository, Neo4JFranchiseRepository>();
+builder.Services.AddScoped<ICWInFranchiseRepository, Neo4JCWInFranchiseRepository>();
+builder.Services.AddScoped<ICInFranchiseRepository, Neo4JCInFranchiseRepository>();
+builder.Services.AddScoped<IInGenreRepository, Neo4JInGenreRepository>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();

@@ -10,5 +10,9 @@ namespace kiss_graph_api.Services.Interfaces
         Task<MovieDto> CreateCreativeWorkAsync(CreateMovieDto movie);
         Task<MovieDto> UpdateCreativeWorkAsync(string uuid, UpdateMovieDto movie);
         Task DeleteCreativeWorkAsync(string uuid);
+        Task AssignToFranchise(string movieUuid, string franchiseUuid);
+        Task RemoveFromFranchise(string movieUuid, string franchiseUuid);
+        Task AssignGenre(string movieUuid, string genreUuid);
+        Task RemoveGenre(string movieUuid, string genreUuid);
     }
 }

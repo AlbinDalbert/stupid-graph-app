@@ -34,9 +34,9 @@ public class FranchiseController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateFranchise([FromBody] CreateFranchiseDto franchiseDto)
     {
-        _logger.LogInformation($"Creating new Creative Work: {franchiseDto.Name}");
+        _logger.LogInformation($"Creating new Franchise: {franchiseDto.Name}");
         var franchise = await _franchiseService.CreateFranchiseAsync(franchiseDto);
-        return CreatedAtAction(nameof(franchise), franchise);
+        return CreatedAtAction(nameof(CreateFranchise), franchise);
     }
 
     [HttpPatch("{uuid}")]
@@ -50,7 +50,7 @@ public class FranchiseController : ControllerBase
     [HttpDelete("{uuid}")]
     public async Task<IActionResult> DeleteMovie(string uuid)
     {
-        _logger.LogInformation($"Deleting Creative Work: {uuid}");
+        _logger.LogInformation($"Deleting Franchise: {uuid}");
         await _franchiseService.DeleteFranchiseAsync(uuid);
         return NoContent();
     }

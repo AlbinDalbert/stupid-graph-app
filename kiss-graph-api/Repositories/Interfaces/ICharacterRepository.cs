@@ -5,6 +5,7 @@ namespace kiss_graph_api.Repositories.Interfaces
     public interface ICharacterRepository
     {
         Task<IEnumerable<CharacterDto>> GetAllAsync();
+        Task<IEnumerable<CharacterDto>> GetAllFromCreativeWorkAsync(string creativeWorkUuid);
         Task<CharacterDto?> GetByUuidAsync(string uuid);
         Task<CharacterDto> CreateAsync(CreateCharacterDto characterDto);
         Task<CharacterDto?> UpdateAsync(string uuid, UpdateCharacterDto characterDto);
