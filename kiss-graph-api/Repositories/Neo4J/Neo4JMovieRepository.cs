@@ -4,6 +4,7 @@ using kiss_graph_api.Repositories.Interfaces;
 using kiss_graph_api.Domain.Enums;
 using kiss_graph_api.Constants;
 using System.Text;
+using kiss_graph_api.Services.Implementations;
 
 namespace kiss_graph_api.Repositories.Neo4j
 {
@@ -33,6 +34,7 @@ namespace kiss_graph_api.Repositories.Neo4j
                         WITH cw, COLLECT(g.{NeoProp.Genre.Name}) AS genres
                         RETURN  cw.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                                 cw.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                                cw.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
                                 cw.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                                 cw.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate},
                                 genres
@@ -65,6 +67,7 @@ namespace kiss_graph_api.Repositories.Neo4j
                         WHERE c.{NeoProp.Movie.Uuid} = ${NeoProp.Movie.Uuid}
                         RETURN  c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                                 c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                                c.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
                                 c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                                 c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
                     ", new { uuid });
@@ -105,11 +108,13 @@ namespace kiss_graph_api.Repositories.Neo4j
             CREATE (c:{NeoLabels.CreativeWork} {{
                 {NeoProp.Movie.Uuid}: ${NeoProp.Movie.Uuid},
                 {NeoProp.Movie.Title}: ${NeoProp.Movie.Title},
+                {NeoProp.Movie.ImageUrl}: ${NeoProp.Movie.ImageUrl},
                 {NeoProp.Movie.Type}: ${NeoProp.Movie.Type},
                 {NeoProp.Movie.ReleaseDate}: ${NeoProp.Movie.ReleaseDate}
             }})
             RETURN  c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                     c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                    c.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
                     c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                     c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
             ";
@@ -118,6 +123,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 { NeoProp.Movie.Uuid, uuid },
                 { NeoProp.Movie.Title, movie.Title },
+                { NeoProp.Movie.ImageUrl, movie.ImageUrl },
                 { NeoProp.Movie.Type, CreativeWorkType.Movie.ToString() },
                 { NeoProp.Movie.ReleaseDate, neo4jDate }
             };
@@ -164,6 +170,11 @@ namespace kiss_graph_api.Repositories.Neo4j
                     updateDto.ReleaseDate.Value.Day));
             }
 
+            if (updateDto.ImageUrl != null) {
+                setClauses.Add($"c.{NeoProp.Movie.ImageUrl} = ${NeoProp.Movie.ImageUrl}");
+                parameters.Add(NeoProp.Movie.ImageUrl, updateDto.ImageUrl);
+            }
+
             if (!setClauses.Any())
             {
                 _logger.LogInformation("Repository: No properties provided to update for CreativeWork {Uuid}. Fetching current.", uuid);
@@ -177,6 +188,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             queryBuilder.Append($@"
                 RETURN c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid},
                         c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title},
+                        c.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
                         c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type},
                         c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
             ");
@@ -228,10 +240,14 @@ namespace kiss_graph_api.Repositories.Neo4j
 
         private MovieDto MapRecordToCreativeWorkDto(IRecord record)
         {
-
             var uuid = record[NeoProp.Movie.Uuid].As<string>();
             var title = record[NeoProp.Movie.Title].As<string>();
-            var workType = ParseCreativeWorkType(record[NeoProp.Movie.Type]); 
+            var workType = ParseCreativeWorkType(record[NeoProp.Movie.Type]);
+            var imageUrl = record.GetValueOrDefault(NeoProp.Movie.ImageUrl)?.As<string>();
+
+            var genresList = record.Keys.Contains("genres") ?
+                record["genres"]?.As<List<string>>() ?? []:[];
+
 
             DateOnly? releaseDate = null;
 
@@ -275,8 +291,9 @@ namespace kiss_graph_api.Repositories.Neo4j
                 Uuid = uuid,
                 Title = title,
                 Type = workType,
+                ImageUrl = imageUrl,
                 ReleaseDate = releaseDate,
-                Genres = record["genres"].As<List<string>>()
+                Genres = genresList,
             };
         }
         private CreativeWorkType ParseCreativeWorkType(object typeObject)

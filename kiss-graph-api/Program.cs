@@ -33,6 +33,15 @@ else
 // Register Neo4j IDriver as a singleton
 builder.Services.AddSingleton<IDriver>(GraphDatabase.Driver(neo4jUri, AuthTokens.Basic(neo4jUser, neo4jPassword)));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteDevServer",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+        });
+});
+
 //add services
 // --- REGISTER YOUR NEW SERVICES AND REPOSITORIES ---
 builder.Services.AddScoped<IMovieService, MovieService>();
@@ -64,10 +73,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();                       // This serves the Swagger UI interactive documentation
 }
 
+app.UseStaticFiles();
+app.UseRouting();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+app.UseCors("AllowViteDevServer");
 
 app.Run();

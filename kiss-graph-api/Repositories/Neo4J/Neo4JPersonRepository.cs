@@ -31,6 +31,7 @@ namespace kiss_graph_api.Repositories.Neo4j
                         MATCH (c:{NeoLabels.Person})
                         RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
                                 c.{NeoProp.Person.Name} AS {NeoProp.Person.Name}, 
+                                c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                                 c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
                         ORDER BY c.{NeoProp.Person.Name}
                     ");
@@ -61,7 +62,8 @@ namespace kiss_graph_api.Repositories.Neo4j
                         MATCH (c:{NeoLabels.Person})
                         WHERE c.{NeoProp.Person.Uuid} = ${NeoProp.Person.Uuid}
                         RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
-                                c.{NeoProp.Person.Name} AS {NeoProp.Person.Name}, 
+                                c.{NeoProp.Person.Name} AS {NeoProp.Person.Name},
+                                c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                                 c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
                     ", new { uuid });
 
@@ -101,10 +103,12 @@ namespace kiss_graph_api.Repositories.Neo4j
             CREATE (c:{NeoLabels.Person} {{
                 {NeoProp.Person.Uuid}: ${NeoProp.Person.Uuid},
                 {NeoProp.Person.Name}: ${NeoProp.Person.Name},
+                {NeoProp.Person.ImageUrl}: ${NeoProp.Person.ImageUrl},
                 {NeoProp.Person.BornDate}: ${NeoProp.Person.BornDate}
             }})
             RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
                     c.{NeoProp.Person.Name} AS {NeoProp.Person.Name}, 
+                    c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                     c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
             ";
 
@@ -112,6 +116,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 { NeoProp.Person.Uuid, uuid },
                 { NeoProp.Person.Name, person.Name },
+                { NeoProp.Person.ImageUrl, person.ImageUrl },
                 { NeoProp.Person.BornDate, neo4jDate }
             };
 
@@ -148,6 +153,12 @@ namespace kiss_graph_api.Repositories.Neo4j
                 parameters.Add(NeoProp.Person.Name, personDto.Name);
             }
 
+            if (personDto.ImageUrl != null)
+            {
+                setClauses.Add($"c.{NeoProp.Person.ImageUrl} = ${NeoProp.Person.ImageUrl}");
+                parameters.Add(NeoProp.Person.ImageUrl, personDto.ImageUrl);
+            }
+
             if (personDto.BornDate.HasValue)
             {
                 setClauses.Add($"c.{NeoProp.Person.BornDate} = ${NeoProp.Person.BornDate}");
@@ -169,7 +180,8 @@ namespace kiss_graph_api.Repositories.Neo4j
             queryBuilder.Append(string.Join(", ", setClauses));
             queryBuilder.Append($@"
             RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
-                    c.{NeoProp.Person.Name} AS {NeoProp.Person.Name}, 
+                    c.{NeoProp.Person.Name} AS {NeoProp.Person.Name},
+                    c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                     c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
             ");
 
@@ -227,7 +239,6 @@ namespace kiss_graph_api.Repositories.Neo4j
             { "personUuidParam", uuid }
         };
 
-                // Construct the Cypher query using your NeoProp constants
                 var query = $@"
             MATCH (p:{NeoLabels.Person})-[r:{NeoLabels.ActedIn}]->(cw:{NeoLabels.CreativeWork})
             WHERE p.{NeoProp.Person.Uuid} = $personUuidParam
@@ -277,6 +288,7 @@ namespace kiss_graph_api.Repositories.Neo4j
 
             var uuid = record[NeoProp.Person.Uuid].As<string>();
             var name = record[NeoProp.Person.Name].As<string>();
+            var imageUrl = record.GetValueOrDefault(NeoProp.Person.ImageUrl)?.As<string>();
 
             DateOnly? bornDate = null;
 
@@ -319,6 +331,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 Uuid = uuid,
                 Name = name,
+                ImageUrl = imageUrl,
                 BornDate = bornDate
             };
         }
