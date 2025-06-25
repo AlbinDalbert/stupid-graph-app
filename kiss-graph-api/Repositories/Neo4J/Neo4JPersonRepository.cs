@@ -31,6 +31,8 @@ namespace kiss_graph_api.Repositories.Neo4j
                         MATCH (c:{NeoLabels.Person})
                         RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
                                 c.{NeoProp.Person.Name} AS {NeoProp.Person.Name}, 
+                                c.{NeoProp.Person.Description} AS {NeoProp.Person.Description}, 
+                                c.{NeoProp.Person.TmdbId} AS {NeoProp.Person.TmdbId}, 
                                 c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                                 c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
                         ORDER BY c.{NeoProp.Person.Name}
@@ -63,6 +65,8 @@ namespace kiss_graph_api.Repositories.Neo4j
                         WHERE c.{NeoProp.Person.Uuid} = ${NeoProp.Person.Uuid}
                         RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
                                 c.{NeoProp.Person.Name} AS {NeoProp.Person.Name},
+                                c.{NeoProp.Person.Description} AS {NeoProp.Person.Description}, 
+                                c.{NeoProp.Person.TmdbId} AS {NeoProp.Person.TmdbId}, 
                                 c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                                 c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
                     ", new { uuid });
@@ -103,6 +107,8 @@ namespace kiss_graph_api.Repositories.Neo4j
             CREATE (c:{NeoLabels.Person} {{
                 {NeoProp.Person.Uuid}: ${NeoProp.Person.Uuid},
                 {NeoProp.Person.Name}: ${NeoProp.Person.Name},
+                {NeoProp.Person.Description}: ${NeoProp.Person.Description},
+                {NeoProp.Person.TmdbId}: ${NeoProp.Person.TmdbId},
                 {NeoProp.Person.ImageUrl}: ${NeoProp.Person.ImageUrl},
                 {NeoProp.Person.BornDate}: ${NeoProp.Person.BornDate}
             }})
@@ -116,6 +122,8 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 { NeoProp.Person.Uuid, uuid },
                 { NeoProp.Person.Name, person.Name },
+                { NeoProp.Person.Description, person.description },
+                { NeoProp.Person.TmdbId, person.tmdbId },
                 { NeoProp.Person.ImageUrl, person.ImageUrl },
                 { NeoProp.Person.BornDate, neo4jDate }
             };
@@ -153,6 +161,12 @@ namespace kiss_graph_api.Repositories.Neo4j
                 parameters.Add(NeoProp.Person.Name, personDto.Name);
             }
 
+            if (personDto.description != null)
+            {
+                setClauses.Add($"c.{NeoProp.Person.Description} = ${NeoProp.Person.Description}");
+                parameters.Add(NeoProp.Person.Description, personDto.description);
+            }
+
             if (personDto.ImageUrl != null)
             {
                 setClauses.Add($"c.{NeoProp.Person.ImageUrl} = ${NeoProp.Person.ImageUrl}");
@@ -181,6 +195,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             queryBuilder.Append($@"
             RETURN  c.{NeoProp.Person.Uuid} AS {NeoProp.Person.Uuid}, 
                     c.{NeoProp.Person.Name} AS {NeoProp.Person.Name},
+                    c.{NeoProp.Person.Description} AS {NeoProp.Person.Description},
                     c.{NeoProp.Person.ImageUrl} AS {NeoProp.Person.ImageUrl},
                     c.{NeoProp.Person.BornDate} AS {NeoProp.Person.BornDate}
             ");
@@ -288,6 +303,8 @@ namespace kiss_graph_api.Repositories.Neo4j
 
             var uuid = record[NeoProp.Person.Uuid].As<string>();
             var name = record[NeoProp.Person.Name].As<string>();
+            var description = record.GetValueOrDefault(NeoProp.Person.Description)?.As<string>();
+            var tmdbId = record.GetValueOrDefault(NeoProp.Person.TmdbId)?.As<int>();
             var imageUrl = record.GetValueOrDefault(NeoProp.Person.ImageUrl)?.As<string>();
 
             DateOnly? bornDate = null;
@@ -331,6 +348,8 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 Uuid = uuid,
                 Name = name,
+                description = description,
+                tmdbId = tmdbId,
                 ImageUrl = imageUrl,
                 BornDate = bornDate
             };

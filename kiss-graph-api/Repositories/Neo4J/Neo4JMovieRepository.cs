@@ -5,6 +5,9 @@ using kiss_graph_api.Domain.Enums;
 using kiss_graph_api.Constants;
 using System.Text;
 using kiss_graph_api.Services.Implementations;
+using kiss_graph_api.Clients.Models;
+using static kiss_graph_api.Constants.NeoProp;
+using System.Globalization;
 
 namespace kiss_graph_api.Repositories.Neo4j
 {
@@ -34,7 +37,11 @@ namespace kiss_graph_api.Repositories.Neo4j
                         WITH cw, COLLECT(g.{NeoProp.Genre.Name}) AS genres
                         RETURN  cw.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                                 cw.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                                cw.{NeoProp.Movie.Description} AS {NeoProp.Movie.Description},
                                 cw.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
+                                cw.{NeoProp.Movie.TmdbId} AS {NeoProp.Movie.TmdbId},
+                                cw.{NeoProp.Movie.TmdbRating} AS {NeoProp.Movie.TmdbRating},
+                                cw.{NeoProp.Movie.TmdbVoteCount} AS {NeoProp.Movie.TmdbVoteCount},
                                 cw.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                                 cw.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate},
                                 genres
@@ -67,7 +74,11 @@ namespace kiss_graph_api.Repositories.Neo4j
                         WHERE c.{NeoProp.Movie.Uuid} = ${NeoProp.Movie.Uuid}
                         RETURN  c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                                 c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                                c.{NeoProp.Movie.Description} AS {NeoProp.Movie.Description},
                                 c.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
+                                c.{NeoProp.Movie.TmdbId} AS {NeoProp.Movie.TmdbId},
+                                c.{NeoProp.Movie.TmdbRating} AS {NeoProp.Movie.TmdbRating},
+                                c.{NeoProp.Movie.TmdbVoteCount} AS {NeoProp.Movie.TmdbVoteCount},
                                 c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                                 c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
                     ", new { uuid });
@@ -108,12 +119,14 @@ namespace kiss_graph_api.Repositories.Neo4j
             CREATE (c:{NeoLabels.CreativeWork} {{
                 {NeoProp.Movie.Uuid}: ${NeoProp.Movie.Uuid},
                 {NeoProp.Movie.Title}: ${NeoProp.Movie.Title},
+                {NeoProp.Movie.Description}: ${NeoProp.Movie.Description},
                 {NeoProp.Movie.ImageUrl}: ${NeoProp.Movie.ImageUrl},
                 {NeoProp.Movie.Type}: ${NeoProp.Movie.Type},
                 {NeoProp.Movie.ReleaseDate}: ${NeoProp.Movie.ReleaseDate}
             }})
             RETURN  c.{NeoProp.Movie.Uuid} AS {NeoProp.Movie.Uuid}, 
                     c.{NeoProp.Movie.Title} AS {NeoProp.Movie.Title}, 
+                    c.{NeoProp.Movie.Description} AS {NeoProp.Movie.Description}, 
                     c.{NeoProp.Movie.ImageUrl} AS {NeoProp.Movie.ImageUrl},
                     c.{NeoProp.Movie.Type} AS {NeoProp.Movie.Type}, 
                     c.{NeoProp.Movie.ReleaseDate} AS {NeoProp.Movie.ReleaseDate}
@@ -123,6 +136,7 @@ namespace kiss_graph_api.Repositories.Neo4j
             {
                 { NeoProp.Movie.Uuid, uuid },
                 { NeoProp.Movie.Title, movie.Title },
+                { NeoProp.Movie.Description, movie.description },
                 { NeoProp.Movie.ImageUrl, movie.ImageUrl },
                 { NeoProp.Movie.Type, CreativeWorkType.Movie.ToString() },
                 { NeoProp.Movie.ReleaseDate, neo4jDate }
@@ -173,6 +187,12 @@ namespace kiss_graph_api.Repositories.Neo4j
             if (updateDto.ImageUrl != null) {
                 setClauses.Add($"c.{NeoProp.Movie.ImageUrl} = ${NeoProp.Movie.ImageUrl}");
                 parameters.Add(NeoProp.Movie.ImageUrl, updateDto.ImageUrl);
+            }
+
+            if (updateDto.description != null)
+            {
+                setClauses.Add($"c.{NeoProp.Movie.Description} = ${NeoProp.Movie.Description}");
+                parameters.Add(NeoProp.Movie.Description, updateDto.description);
             }
 
             if (!setClauses.Any())
@@ -242,8 +262,14 @@ namespace kiss_graph_api.Repositories.Neo4j
         {
             var uuid = record[NeoProp.Movie.Uuid].As<string>();
             var title = record[NeoProp.Movie.Title].As<string>();
+
+            var tmdbId = record.GetValueOrDefault(NeoProp.Movie.TmdbId)?.As<int>();
+            var tmdbRating = record.GetValueOrDefault(NeoProp.Movie.TmdbRating)?.As<int>();
+            var tmdbVoteCount = record.GetValueOrDefault(NeoProp.Movie.TmdbVoteCount)?.As<int>();
+
             var workType = ParseCreativeWorkType(record[NeoProp.Movie.Type]);
             var imageUrl = record.GetValueOrDefault(NeoProp.Movie.ImageUrl)?.As<string>();
+            var description = record.GetValueOrDefault(NeoProp.Movie.Description)?.As<string>();
 
             var genresList = record.Keys.Contains("genres") ?
                 record["genres"]?.As<List<string>>() ?? []:[];
@@ -291,6 +317,9 @@ namespace kiss_graph_api.Repositories.Neo4j
                 Uuid = uuid,
                 Title = title,
                 Type = workType,
+                tmdbId = tmdbId,
+                tmdbRating = tmdbRating,
+                tmdbVoteCount = tmdbVoteCount,
                 ImageUrl = imageUrl,
                 ReleaseDate = releaseDate,
                 Genres = genresList,
@@ -318,6 +347,79 @@ namespace kiss_graph_api.Repositories.Neo4j
             }
 
             return workTypeEnum;
+        }
+
+        public async Task<MovieDto> CreateOrUpdateFromTmdbAsync(TmdbMovieDetailDto tmdbMovie)
+        {
+            _logger.LogInformation("Repository: Add Movie to Neo4j");
+            await using var session = _driver.AsyncSession();
+
+            LocalDate? neo4jDate = null;
+            if (!string.IsNullOrEmpty(tmdbMovie.ReleaseDate) &&
+                DateTime.TryParseExact(
+                    tmdbMovie.ReleaseDate,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime parsedDate))
+            {
+                neo4jDate = new LocalDate(parsedDate.Year, parsedDate.Month, parsedDate.Day);
+            }
+
+            try
+            {
+                var createdOrUpdatedWork = await session.ExecuteWriteAsync(async tx =>
+                {
+
+                    var query = $@"
+                    MERGE (cw:{NeoLabels.CreativeWork} {{ {NeoProp.CreativeWork.TmdbId}: ${NeoProp.CreativeWork.TmdbId} }})
+                    ON CREATE SET
+                        cw.{NeoProp.CreativeWork.Uuid} = apoc.create.uuid(), // Your internal UUID, set only once
+                        cw.{NeoProp.CreativeWork.Title} = ${NeoProp.CreativeWork.Title},
+                        cw.{NeoProp.CreativeWork.Description} = ${NeoProp.CreativeWork.Description},
+                        cw.{NeoProp.CreativeWork.ImageUrl} = ${NeoProp.CreativeWork.ImageUrl},
+                        cw.{NeoProp.CreativeWork.Type} = ${NeoProp.CreativeWork.Type},
+                        cw.{NeoProp.CreativeWork.ReleaseDate} = ${NeoProp.CreativeWork.ReleaseDate},
+                        cw.{NeoProp.CreativeWork.TmdbRating} = ${NeoProp.CreativeWork.TmdbRating},
+                        cw.{NeoProp.CreativeWork.TmdbVoteCount} = ${NeoProp.CreativeWork.TmdbVoteCount}
+                     ON MATCH SET
+                        cw.{NeoProp.CreativeWork.Title} = ${NeoProp.CreativeWork.Title},
+                        cw.{NeoProp.CreativeWork.Description} = ${NeoProp.CreativeWork.Description},
+                        cw.{NeoProp.CreativeWork.ImageUrl} = ${NeoProp.CreativeWork.ImageUrl},
+                        cw.{NeoProp.CreativeWork.Type} = ${NeoProp.CreativeWork.Type},
+                        cw.{NeoProp.CreativeWork.ReleaseDate} = ${NeoProp.CreativeWork.ReleaseDate},
+                        cw.{NeoProp.CreativeWork.TmdbRating} = ${NeoProp.CreativeWork.TmdbRating},
+                        cw.{NeoProp.CreativeWork.TmdbVoteCount} = ${NeoProp.CreativeWork.TmdbVoteCount}
+
+                    RETURN cw";
+
+                    var fullPosterPath = !string.IsNullOrEmpty(tmdbMovie.PosterPath)
+                        ? $"https://image.tmdb.org/t/p/w500{tmdbMovie.PosterPath}"
+                        : null;
+
+                    var parameters = new Dictionary<string, object?>
+                    {
+                        { NeoProp.CreativeWork.TmdbId, tmdbMovie.Id },
+                        { NeoProp.CreativeWork.Title, tmdbMovie.Title },
+                        { NeoProp.CreativeWork.Description, tmdbMovie.Overview },
+                        { NeoProp.CreativeWork.ImageUrl, fullPosterPath },
+                        { NeoProp.CreativeWork.Type, "Movie" },
+                        { NeoProp.CreativeWork.ReleaseDate, neo4jDate },
+                        { NeoProp.CreativeWork.TmdbRating, tmdbMovie.VoteAverage },
+                        { NeoProp.CreativeWork.TmdbVoteCount, tmdbMovie.VoteCount }
+                    };
+
+                    var cursor = await tx.RunAsync(query, parameters);
+                    var record = await cursor.SingleAsync();
+                    return MapRecordToCreativeWorkDto(record);
+                });
+                return createdOrUpdatedWork;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Repository: Error adding Movie to Neo4j");
+                throw;
+            }
         }
     }
 }

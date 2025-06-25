@@ -8,6 +8,33 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\images\movies\doctorsleep.webpAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\doctorsleep.webpPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\doctorsleep.webpZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\dune.webpAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\dune.webpPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\dune.webpZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\dune2.jpgAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\dune2.jpgPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\dune2.jpgZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\MIRogueNation.jpgAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\MIRogueNation.jpgPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\MIRogueNation.jpgZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\missionimpossible.jpegAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\missionimpossible.jpegPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\missionimpossible.jpegZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\starwars3.jpgAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\starwars3.jpgPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\starwars3.jpgZone.Identifier" />
+    <Content Remove="wwwroot\images\movies\starwars4.webpAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\movies\starwars4.webpPG%24Secure" />
+    <Content Remove="wwwroot\images\movies\starwars4.webpZone.Identifier" />
+    <Content Remove="wwwroot\images\people\tomcruise.webpAvecto.Zone.Identifier" />
+    <Content Remove="wwwroot\images\people\tomcruise.webpPG%24Secure" />
+    <Content Remove="wwwroot\images\people\tomcruise.webpZone.Identifier" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
     <PackageReference Include="Neo4j.Driver" Version="5.28.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />

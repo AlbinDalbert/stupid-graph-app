@@ -22,23 +22,36 @@
         private const string _Type = "type";
         private const string _ReleaseDate = "releaseDate";
         private const string _ImageUrl = "imageUrl";
+        private const string _Description = "description";
+        private const string _TmdbId = "tmdbId";
+        private const string _TmdbRating = "rating";
+        private const string _TmdbVoteCount = "tmdbVoteCount";
 
         public static class CreativeWork
         {
             public const string Uuid = _Uuid;
             public const string Title = _Title;
+            public const string Description = _Description;
             public const string Type = _Type;
             public const string ReleaseDate = _ReleaseDate;
             public const string ImageUrl = _ImageUrl;
+            public const string TmdbId = _TmdbId;
+            public const string TmdbRating = _TmdbRating;
+            public const string TmdbVoteCount = _TmdbVoteCount;
+            
         }
 
         public static class Movie
         {
             public const string Uuid = _Uuid;
             public const string Title = _Title;
+            public const string Description = _Description;
             public const string Type = _Type;
             public const string ReleaseDate = _ReleaseDate;
             public const string ImageUrl = _ImageUrl;
+            public const string TmdbId = _TmdbId;
+            public const string TmdbRating = _TmdbRating;
+            public const string TmdbVoteCount = _TmdbVoteCount;
 
 
             public const string ProductionCompany = "productionCompany";
@@ -56,9 +69,11 @@
         {
             public const string Uuid = _Uuid;
             public const string Title = _Title;
+            public const string Description = _Description;
             public const string Type = _Type;
             public const string ReleaseDate = _ReleaseDate;
             public const string ImageUrl = _ImageUrl;
+            public const string TmdbId = _TmdbId;
 
             public const string ProductionCompany = "productionCompany";
             public const string NumberOfEpisodes = "numberOfEpisodes";
@@ -68,6 +83,7 @@
         {
             public const string Uuid = _Uuid;
             public const string Title = _Title;
+            public const string Description = _Description;
             public const string Type = _Type;
             public const string ReleaseDate = _ReleaseDate;
             public const string ImageUrl = _ImageUrl;
@@ -80,6 +96,7 @@
         {
             public const string Uuid = _Uuid;
             public const string Title = _Title;
+            public const string Description = _Description;
             public const string Type = _Type;
             public const string ReleaseDate = _ReleaseDate;
             public const string ImageUrl = _ImageUrl;
@@ -92,7 +109,10 @@
         {
             public const string Uuid = _Uuid;
             public const string Name = _Name;
+            public const string Description = _Description;
             public const string ImageUrl = _ImageUrl;
+            public const string TmdbId = _TmdbId;
+
             public const string BornDate = "bornDate";
             public const string Gender = "gender";
         }
@@ -101,6 +121,7 @@
         {
             public const string Uuid = _Uuid;
             public const string Name = _Name;
+            public const string Description = _Description;
             public const string ImageUrl = _ImageUrl;
             public const string Gender = "gender";
         }

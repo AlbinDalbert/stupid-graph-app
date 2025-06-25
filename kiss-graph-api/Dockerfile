@@ -1,26 +1,35 @@
+# File: kiss-graph-api/Dockerfile
+
+# --- Build Stage ---
 # Use the official .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
+# Copy the project file and the nuget.config that points to our local feed.
+# Using the specific project name is more reliable than a wildcard.
+COPY kiss-graph-api.csproj ./
+COPY nuget.config ./
+
+# Copy the entire local-nuget-feed directory into the container.
+# This contains all our pre-downloaded, offline packages.
+COPY local-nuget-shit/ ./local-nuget-shit/
+
+# Use a cache mount for the NuGet packages directory during restore.
 RUN dotnet restore
 
-# Copy everything else and build
+# Copy the rest of your application source code.
 COPY . ./
+
+# Publish the application, creating the final output in the 'out' folder.
 RUN dotnet publish -c Release -o out
 
-# Build runtime image
+
+# --- Build the final, smaller runtime image ---
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build-env /app/out .
 
-# Expose the port the app runs on (default Kestrel port is 8080 in containers for .NET 8+)
-# If you configure a different port or an older .NET version, adjust accordingly (e.g., EXPOSE 5000)
+# Expose the port the app runs on
 EXPOSE 8080
-# For older .NET versions, ASPNETCORE_URLS might be http://+:80
-# ENV ASPNETCORE_URLS=http://+:8080
-
-RUN ls -la
 
 ENTRYPOINT ["dotnet", "kiss-graph-api.dll"]

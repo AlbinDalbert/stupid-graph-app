@@ -1,3 +1,5 @@
+using kiss_graph_api.Clients.Interfaces;
+using kiss_graph_api.Clients;
 using kiss_graph_api.Middleware;
 using kiss_graph_api.Repositories.Interfaces;
 using kiss_graph_api.Repositories.Neo4j;
@@ -43,7 +45,6 @@ builder.Services.AddCors(options =>
 });
 
 //add services
-// --- REGISTER YOUR NEW SERVICES AND REPOSITORIES ---
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
@@ -61,6 +62,11 @@ builder.Services.AddScoped<IFranchiseRepository, Neo4JFranchiseRepository>();
 builder.Services.AddScoped<ICWInFranchiseRepository, Neo4JCWInFranchiseRepository>();
 builder.Services.AddScoped<ICInFranchiseRepository, Neo4JCInFranchiseRepository>();
 builder.Services.AddScoped<IInGenreRepository, Neo4JInGenreRepository>();
+
+builder.Services.AddScoped<ITmdbImportService, TmdbImportService>();
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ITmdbClient, TmdbClient>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
